@@ -120,10 +120,6 @@ def update_profile():
             return jsonify({'error': 'Email already exists'}), 400
         user.email = data['email']
 
-    if (data.get('is_admin') is not None) and (data['is_admin'] != user.is_admin):
-        user.is_admin = data['is_admin']
-
-    
     # Update password if provided
     if data.get('new_password'):
         user.set_password(data['new_password'])

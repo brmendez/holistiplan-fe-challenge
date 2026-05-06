@@ -3,6 +3,8 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useServersStore } from '../stores/servers';
 
+import { toast } from 'vue-sonner';
+
 export default {
   name: 'ServerFormView',
   setup() {
@@ -47,7 +49,6 @@ export default {
 
     const submitForm = async () => {
       if (!validateForm()) return;
-      
       isSubmitting.value = true;
       
       try {
@@ -62,8 +63,10 @@ export default {
 
         if (isEdit.value) {
           await serversStore.updateServer(serverId.value, payload);
+          toast.success('Server updated');
         } else {
           await serversStore.createServer(payload);
+          toast.success('Server created');
         }
         router.push('/servers');
       } catch (error) {

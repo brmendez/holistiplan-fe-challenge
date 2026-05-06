@@ -163,7 +163,18 @@ export default {
 
     <!-- Users Table -->
     <div class="card overflow-hidden">
-      <div class="overflow-x-auto">
+      <!-- Loading state -->
+      <div
+        v-if="isLoading"
+        class="text-center py-12"
+      >
+        <p class="text-gray-500 dark:text-gray-400">Loading users...</p>
+      </div>
+
+      <div
+        v-else
+        class="overflow-x-auto"
+      >
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
@@ -235,7 +246,7 @@ export default {
       </div>
 
       <div
-        v-if="users.length === 0 && !isLoading"
+        v-if="!isLoading && users.length === 0"
         class="text-center py-12"
       >
         <p class="text-gray-500 dark:text-gray-400">No users found.</p>
@@ -344,7 +355,20 @@ export default {
               >
             </div>
             <div class="mb-4">
-              <label class="flex items-center">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+              <div
+                v-if="userToEdit.id === authStore.user?.id"
+                class="flex items-center space-x-2"
+              >
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/30">
+                  Active
+                </span>
+                <span class="text-xs text-gray-400 dark:text-gray-500">Cannot deactivate your own account</span>
+              </div>
+              <label
+                v-else
+                class="flex items-center"
+              >
                 <input
                   v-model="userToEdit.is_active"
                   type="checkbox"
@@ -354,13 +378,26 @@ export default {
               </label>
             </div>
             <div class="mb-4">
-              <label class="flex items-center">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Admin User</label>
+              <div
+                v-if="userToEdit.id === authStore.user?.id"
+                class="flex items-center space-x-2"
+              >
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-purple-700 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30">
+                  Admin
+                </span>
+                <span class="text-xs text-gray-400 dark:text-gray-500">Cannot change your own role</span>
+              </div>
+              <label
+                v-else
+                class="flex items-center"
+              >
                 <input
                   v-model="userToEdit.is_admin"
                   type="checkbox"
                   class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                 >
-                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Admin User</span>
+                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Admin</span>
               </label>
             </div>
             <div class="flex justify-end space-x-4">

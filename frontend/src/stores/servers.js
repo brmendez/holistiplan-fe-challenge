@@ -41,8 +41,8 @@ export const useServersStore = defineStore('servers', () => {
     return servers.value.map(server => ({
       ...server,
       health_score: calculateHealth(server)
-    }))
-  })
+    }));
+  });
 
   const fetchServers = async () => {
     isLoading.value = true;

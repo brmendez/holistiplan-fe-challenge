@@ -4,6 +4,8 @@ import { useServersStore } from '../stores/servers';
 import EditServerModal from '../components/EditServerModal.vue';
 import filterMethods from '../helpers/filterMethods';
 
+import { toast } from 'vue-sonner';
+
 export default {
   name: 'ServersView',
   components: {
@@ -38,10 +40,14 @@ export default {
       if (serverToDelete.value) {
         try {
           await serversStore.deleteServer(serverToDelete.value.id);
+
+          toast.success(`${serverToDelete.value.name} deleted`);
+
           showDeleteModal.value = false;
           serverToDelete.value = null;
         } catch (error) {
           console.error('Failed to delete server:', error);
+          toast.error('Failed to delete server. Please try again.');
         }
       }
     };
@@ -112,9 +118,28 @@ export default {
       </div>
     </div>
 
+    <!-- Error state -->
+    <div
+      v-if="error"
+      class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-6"
+    >
+      {{ error }}
+    </div>
+
     <!-- Servers Table -->
     <div class="card overflow-hidden">
-      <div class="overflow-x-auto">
+      <!-- Loading state -->
+      <div
+        v-if="loading"
+        class="text-center py-12"
+      >
+        <p class="text-gray-500 dark:text-gray-400">Loading servers...</p>
+      </div>
+
+      <div
+        v-else
+        class="overflow-x-auto"
+      >
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
@@ -202,7 +227,7 @@ export default {
       </div>
 
       <div
-        v-if="servers.length === 0"
+        v-if="!loading && servers.length === 0"
         class="text-center py-12"
       >
         <p class="text-gray-500 dark:text-gray-400">No servers found.</p>
@@ -232,9 +257,10 @@ export default {
             </button>
             <button
               @click="deleteServer"
+              :disabled="loading"
               class="btn btn-danger"
             >
-              Delete
+              {{ loading ? 'Deleting...' : 'Delete' }}
             </button>
           </div>
         </div>

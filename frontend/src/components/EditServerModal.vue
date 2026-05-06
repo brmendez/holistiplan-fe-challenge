@@ -2,6 +2,8 @@
 import { ref, watch } from 'vue';
 import { useServersStore } from '../stores/servers';
 
+import { toast } from 'vue-sonner';
+
 export default {
   name: 'EditServerModal',
   props: {
@@ -80,6 +82,8 @@ export default {
         };
         
         await serversStore.updateServer(props.server.id, payload);
+        toast.success('Server updated');
+
         emit('saved', { ...props.server, ...payload });
         emit('close');
       } catch (error) {
@@ -162,7 +166,6 @@ export default {
               v-model="form.name"
               id="edit-name"
               type="text"
-              required
               class="form-input"
               :class="{ 'border-red-300 dark:border-red-500': errors.name }"
             />
@@ -186,7 +189,6 @@ export default {
               v-model="form.hostname"
               id="edit-hostname"
               type="text"
-              required
               class="form-input"
               :class="{ 'border-red-300 dark:border-red-500': errors.hostname }"
             />
@@ -210,7 +212,6 @@ export default {
               v-model="form.ip_address"
               id="edit-ip"
               type="text"
-              required
               placeholder="192.168.1.100"
               class="form-input"
               :class="{ 'border-red-300 dark:border-red-500': errors.ip_address }"
