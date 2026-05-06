@@ -11,7 +11,7 @@ export default {
   },
   setup() {
     const serversStore = useServersStore();
-    const servers = computed(() => serversStore.servers);
+    const servers = computed(() => serversStore.serversWithHealth);
     const showDeleteModal = ref(false);
     const serverToDelete = ref(null);
     const showEditModal = ref(false);
@@ -73,19 +73,21 @@ export default {
     });
 
     return {
-      servers,
-      showDeleteModal,
-      serverToDelete,
-      showEditModal,
-      serverToEdit,
-      getStatusColor,
       confirmDelete,
       deleteServer,
       editServer,
+      error,
+      formatUptime,
+      getStatusColor,
       handleEditClose,
       handleEditSaved,
-      formatUptime,
-      ...filterMethods
+      loading,
+      servers,
+      serverToDelete,
+      serverToEdit,
+      showDeleteModal,
+      showEditModal,
+      ...filterMethods,
     };
   }
 };
@@ -125,6 +127,9 @@ export default {
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Usage
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Health
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Uptime
@@ -168,6 +173,9 @@ export default {
                 <div class="text-sm text-gray-900 dark:text-gray-100">
                   Disk: {{ formatPercent(server.disk_usage) }}%
                 </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                {{ server.health_score }}%
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                 {{ formatUptime(server.uptime) }}

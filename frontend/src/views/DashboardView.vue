@@ -124,11 +124,14 @@ export default {
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 CPU Usage
               </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Health
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <tr
-              v-for="server in serversStore.servers.slice(0, 10)"
+              v-for="server in serversStore.serversWithHealth.slice(0, 10)"
               :key="server.id"
             >
               <td class="px-6 py-4 whitespace-nowrap">
@@ -150,6 +153,9 @@ export default {
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                 {{ server.cpu_usage }}%
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                {{ server.health_score }}%
               </td>
             </tr>
           </tbody>

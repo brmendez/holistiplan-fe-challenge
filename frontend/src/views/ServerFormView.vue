@@ -151,7 +151,6 @@ export default {
               v-model="form.name"
               id="name"
               type="text"
-              required
               class="form-input"
               :class="{ 'border-red-300 dark:border-red-500': errors.name }"
             />
@@ -174,7 +173,6 @@ export default {
               v-model="form.hostname"
               id="hostname"
               type="text"
-              required
               class="form-input"
               :class="{ 'border-red-300 dark:border-red-500': errors.hostname }"
             />
@@ -197,7 +195,6 @@ export default {
               v-model="form.ip_address"
               id="ip_address"
               type="text"
-              required
               placeholder="192.168.1.100"
               class="form-input"
               :class="{ 'border-red-300 dark:border-red-500': errors.ip_address }"

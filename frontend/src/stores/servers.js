@@ -27,6 +27,23 @@ export const useServersStore = defineStore('servers', () => {
 
   const totalServers = computed(() => servers.value.length);
 
+  const calculateHealth = ({ cpu_usage, disk_usage, memory_usage }) => {
+    const cpuScore = (1 - cpu_usage) * 40;
+    const memoryScore = (1 - memory_usage) * 40;
+    const diskScore = (1 - disk_usage) * 20;
+
+    const total = cpuScore + memoryScore + diskScore;
+
+    return Number(total.toFixed(2));
+  };
+
+  const serversWithHealth = computed(() => {
+    return servers.value.map(server => ({
+      ...server,
+      health_score: calculateHealth(server)
+    }))
+  })
+
   const fetchServers = async () => {
     isLoading.value = true;
     error.value = null;
@@ -110,18 +127,19 @@ export const useServersStore = defineStore('servers', () => {
   };
 
   return {
-    servers,
-    dashboardStats,
-    isLoading,
-    error,
-    serversByStatus,
-    totalServers,
-    fetchServers,
-    fetchDashboardStats,
+    clearError,
     createServer,
-    updateServer,
+    dashboardStats,
     deleteServer,
+    error,
+    fetchDashboardStats,
+    fetchServers,
     getServerById,
-    clearError
+    isLoading,
+    servers,
+    serversByStatus,
+    serversWithHealth,
+    totalServers,
+    updateServer,
   };
 });
