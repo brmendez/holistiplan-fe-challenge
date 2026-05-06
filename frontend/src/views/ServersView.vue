@@ -12,6 +12,8 @@ export default {
   setup() {
     const serversStore = useServersStore();
     const servers = computed(() => serversStore.serversWithHealth);
+    const loading = computed(() => serversStore.isLoading);
+    const error = computed(() => serversStore.error);
     const showDeleteModal = ref(false);
     const serverToDelete = ref(null);
     const showEditModal = ref(false);
