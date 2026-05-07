@@ -1,5 +1,5 @@
 ## Time
-**Estimated Time Spent:** TODO: Add time spent
+**Estimated Time Spent:** ~4 hours
 
 > Given time constraints, I focused on fewer tasks done well rather than rushing through all five.
 
@@ -8,7 +8,7 @@
 
 **Details**
 What tooling did you use?: Claude (Anthropic)
-Please provide a brief description of how you used it: Used Claude as a pair programming partner — talking through design decisions, debugging environment issues, and gut-checking approaches. I drove all implementation and wrote the code myself.
+Please provide a brief description of how you used it: Used Claude as a collaborative pair programmer — worked through design decisions, implementation, and debugging together.
 
 ---
 
@@ -35,6 +35,15 @@ Please provide a brief description of how you used it: Used Claude as a pair pro
 
 ### FE-001: Server Health Monitoring ✓
 Implemented weighted health score (CPU 40%, memory 40%, disk 20%) as a computed (`serversWithHealth`) in the servers Pinia store. Health score surfaced as a column on both the dashboard recent servers table and the main servers list.
+
+### FE-002: Filtering and Sorting ✓
+All filtering and sorting is client-side in `ServersView.vue` — no backend changes needed.
+- Filter by server name (live substring search), IP address (partial match), status (dropdown), and location (dropdown auto-populated from actual server data)
+- Sort by Name, Status, Location, and Uptime via clickable column headers — click once for asc, again for desc; inactive columns show ↕ indicator
+- Status sort uses semantic ordering (online → maintenance → error → offline) rather than alphabetical
+- Clear Filters button appears only when a filter is active; clears all filters without resetting sort
+- Empty state distinguishes "no servers" from "no results for current filters" with an inline Clear Filters shortcut
+- Filter state resets on page leave as specified
 
 ### FE-005: Error Handling and User Feedback ✓
 Added `vue-sonner` for toast notifications. Pattern kept lean — toasts only where there's no other feedback channel:

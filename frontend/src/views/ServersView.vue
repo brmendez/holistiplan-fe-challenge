@@ -6,6 +6,8 @@ import filterMethods from '../helpers/filterMethods';
 
 import { toast } from 'vue-sonner';
 
+const STATUS_ORDER = { online: 0, maintenance: 1, error: 2, offline: 3 };
+
 export default {
   name: 'ServersView',
   components: {
@@ -20,6 +22,68 @@ export default {
     const serverToDelete = ref(null);
     const showEditModal = ref(false);
     const serverToEdit = ref(null);
+
+    // Filter state
+    const filterName = ref('');
+    const filterIP = ref('');
+    const filterStatus = ref('');
+    const filterLocation = ref('');
+
+    // Sort state
+    const sortField = ref('name');
+    const sortDirection = ref('asc');
+
+    const uniqueLocations = computed(() => {
+      const locs = new Set(servers.value.map(s => s.location).filter(Boolean));
+      return [...locs].sort();
+    });
+
+    const isFiltered = computed(() =>
+      filterName.value !== '' || filterIP.value !== '' ||
+      filterStatus.value !== '' || filterLocation.value !== ''
+    );
+
+    const filteredAndSortedServers = computed(() => {
+      let result = servers.value;
+
+      const nameTerm = filterName.value.trim().toLowerCase();
+      if (nameTerm) result = result.filter(s => s.name.toLowerCase().includes(nameTerm));
+
+      const ipTerm = filterIP.value.trim();
+      if (ipTerm) result = result.filter(s => s.ip_address.includes(ipTerm));
+
+      if (filterStatus.value) result = result.filter(s => s.status === filterStatus.value);
+      if (filterLocation.value) result = result.filter(s => s.location === filterLocation.value);
+
+      const comparators = {
+        name: (a, b) => a.name.localeCompare(b.name),
+        status: (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status],
+        location: (a, b) => a.location.localeCompare(b.location),
+        uptime: (a, b) => a.uptime - b.uptime,
+      };
+
+      const dir = sortDirection.value === 'asc' ? 1 : -1;
+      return [...result].sort((a, b) => {
+        const compare = comparators[sortField.value];
+        return compare ? dir * compare(a, b) : 0;
+      });
+    });
+
+    const clearFilters = () => {
+      filterName.value = '';
+      filterIP.value = '';
+      filterStatus.value = '';
+      filterLocation.value = '';
+    };
+
+    const setSort = (field) => {
+      if (sortField.value === field) {
+        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortField.value = field;
+        sortDirection.value = 'asc';
+      }
+    };
 
     const getStatusColor = (status) => {
       const colors = {
@@ -81,20 +145,31 @@ export default {
     });
 
     return {
+      clearFilters,
       confirmDelete,
       deleteServer,
       editServer,
       error,
+      filterIP,
+      filterLocation,
+      filterName,
+      filterStatus,
+      filteredAndSortedServers,
       formatUptime,
       getStatusColor,
       handleEditClose,
       handleEditSaved,
+      isFiltered,
       loading,
       servers,
       serverToDelete,
       serverToEdit,
+      setSort,
       showDeleteModal,
       showEditModal,
+      sortDirection,
+      sortField,
+      uniqueLocations,
       ...filterMethods,
     };
   }
@@ -128,6 +203,68 @@ export default {
 
     <!-- Servers Table -->
     <div class="card overflow-hidden">
+      <!-- Filter Bar -->
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <div class="flex-1 min-w-[180px]">
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Server Name</label>
+            <input
+              v-model="filterName"
+              type="text"
+              placeholder="Search by name..."
+              class="form-input"
+            />
+          </div>
+          <div class="flex-1 min-w-[140px]">
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">IP Address</label>
+            <input
+              v-model="filterIP"
+              type="text"
+              placeholder="e.g. 192.168"
+              class="form-input"
+            />
+          </div>
+          <div class="min-w-[140px]">
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
+            <select
+              v-model="filterStatus"
+              class="form-input"
+            >
+              <option value="">All statuses</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="error">Error</option>
+            </select>
+          </div>
+          <div class="min-w-[150px]">
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Location</label>
+            <select
+              v-model="filterLocation"
+              class="form-input"
+            >
+              <option value="">All locations</option>
+              <option
+                v-for="loc in uniqueLocations"
+                :key="loc"
+                :value="loc"
+              >
+                {{ loc }}
+              </option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button
+              v-if="isFiltered"
+              @click="clearFilters"
+              class="btn btn-secondary whitespace-nowrap"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Loading state -->
       <div
         v-if="loading"
@@ -144,13 +281,40 @@ export default {
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Server
+                <button
+                  @click="setSort('name')"
+                  class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+                >
+                  Server
+                  <span class="text-gray-400 dark:text-gray-500">
+                    <template v-if="sortField === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</template>
+                    <template v-else>↕</template>
+                  </span>
+                </button>
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Status
+                <button
+                  @click="setSort('status')"
+                  class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+                >
+                  Status
+                  <span class="text-gray-400 dark:text-gray-500">
+                    <template v-if="sortField === 'status'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</template>
+                    <template v-else>↕</template>
+                  </span>
+                </button>
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Location
+                <button
+                  @click="setSort('location')"
+                  class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+                >
+                  Location
+                  <span class="text-gray-400 dark:text-gray-500">
+                    <template v-if="sortField === 'location'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</template>
+                    <template v-else>↕</template>
+                  </span>
+                </button>
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Usage
@@ -159,7 +323,16 @@ export default {
                 Health
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Uptime
+                <button
+                  @click="setSort('uptime')"
+                  class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+                >
+                  Uptime
+                  <span class="text-gray-400 dark:text-gray-500">
+                    <template v-if="sortField === 'uptime'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</template>
+                    <template v-else>↕</template>
+                  </span>
+                </button>
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Actions
@@ -168,7 +341,7 @@ export default {
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <tr
-              v-for="server in servers"
+              v-for="server in filteredAndSortedServers"
               :key="server.id"
             >
               <td class="px-6 py-4 whitespace-nowrap">
@@ -227,10 +400,20 @@ export default {
       </div>
 
       <div
-        v-if="!loading && servers.length === 0"
+        v-if="!loading && filteredAndSortedServers.length === 0"
         class="text-center py-12"
       >
-        <p class="text-gray-500 dark:text-gray-400">No servers found.</p>
+        <p class="text-gray-500 dark:text-gray-400">
+          <template v-if="isFiltered">No servers match the current filters.</template>
+          <template v-else>No servers found.</template>
+        </p>
+        <button
+          v-if="isFiltered"
+          @click="clearFilters"
+          class="btn btn-secondary mt-3"
+        >
+          Clear Filters
+        </button>
       </div>
     </div>
 
