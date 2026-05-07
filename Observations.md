@@ -36,6 +36,12 @@ Please provide a brief description of how you used it: Used Claude as a collabor
 ### FE-001: Server Health Monitoring ✓
 Implemented weighted health score (CPU 40%, memory 40%, disk 20%) as a computed (`serversWithHealth`) in the servers Pinia store. Health score surfaced as a column on both the dashboard recent servers table and the main servers list.
 
+### FE-003: Dashboard Interactivity (not implemented)
+Would add polling with a "last updated" timestamp for a real-time feel, and make the status/usage charts clickable to navigate to the Servers list with filters pre-applied.
+
+### FE-004: Bulk Operations (not implemented)
+Would add a checkbox column with select-all, and a contextual action bar that appears when rows are selected with bulk delete and status update options. Bulk delete would require a confirmation step.
+
 ### FE-002: Filtering and Sorting ✓
 All filtering and sorting is client-side in `ServersView.vue` — no backend changes needed.
 - Filter by server name (live substring search), IP address (partial match), status (dropdown), and location (dropdown auto-populated from actual server data)
