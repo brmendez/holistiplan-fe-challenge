@@ -27,7 +27,7 @@ Please provide a brief description of how you used it: Used Claude as a collabor
 - Disabled buttons had no visual indication — no opacity change, cursor stayed as pointer. *(Fixed: added `disabled:opacity-50 disabled:cursor-not-allowed` globally to `.btn` in `main.css`)*
 
 ### Other Insights
--
+No additional observations beyond the bugs documented above.
 
 ---
 
@@ -35,12 +35,6 @@ Please provide a brief description of how you used it: Used Claude as a collabor
 
 ### FE-001: Server Health Monitoring ✓
 Implemented weighted health score (CPU 40%, memory 40%, disk 20%) as a computed (`serversWithHealth`) in the servers Pinia store. Health score surfaced as a column on both the dashboard recent servers table and the main servers list.
-
-### FE-003: Dashboard Interactivity (not implemented)
-Would add polling with a "last updated" timestamp for a real-time feel, and make the status/usage charts clickable to navigate to the Servers list with filters pre-applied.
-
-### FE-004: Bulk Operations (not implemented)
-Would add a checkbox column with select-all, and a contextual action bar that appears when rows are selected with bulk delete and status update options. Bulk delete would require a confirmation step.
 
 ### FE-002: Filtering and Sorting ✓
 All filtering and sorting is client-side in `ServersView.vue` — no backend changes needed.
@@ -50,6 +44,12 @@ All filtering and sorting is client-side in `ServersView.vue` — no backend cha
 - Clear Filters button appears only when a filter is active; clears all filters without resetting sort
 - Empty state distinguishes "no servers" from "no results for current filters" with an inline Clear Filters shortcut
 - Filter state resets on page leave as specified
+
+### FE-003: Dashboard Interactivity (not implemented)
+Would add polling with a "last updated" timestamp for a real-time feel, and make the status/usage charts clickable to navigate to the Servers list with filters pre-applied.
+
+### FE-004: Bulk Operations (not implemented)
+Would add a checkbox column with select-all, and a contextual action bar that appears when rows are selected with bulk delete and status update options. Bulk delete would require a confirmation step.
 
 ### FE-005: Error Handling and User Feedback ✓
 Added `vue-sonner` for toast notifications. Pattern kept lean — toasts only where there's no other feedback channel:
