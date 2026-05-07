@@ -4,10 +4,14 @@ import { useAuthStore } from './stores/auth';
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
 
+import { Toaster } from 'vue-sonner';
+import 'vue-sonner/style.css';
+
 export default {
   name: 'App',
   components: {
-    RouterView
+    RouterView,
+    Toaster
   },
   setup() {
     const authStore = useAuthStore();
@@ -24,7 +28,7 @@ export default {
 
     return {
       authStore,
-      logout
+      logout,
     };
   }
 };
@@ -35,6 +39,12 @@ export default {
     id="app"
     class="h-screen bg-gray-50 dark:bg-gray-900 font-primary"
   >
+    <!-- Global toaster -->
+    <Toaster
+      position="top-center"
+      rich-colors
+    />
+
     <div
       v-if="authStore.isAuthenticated"
       class="flex h-full"

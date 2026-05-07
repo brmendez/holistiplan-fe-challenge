@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { authAPI } from '../services/api';
 
@@ -27,6 +27,15 @@ export default {
         });
       }
     };
+
+    const hasChanges = computed(() => {
+      if (!authStore.user) return false;
+      return (
+        formData.value.username !== authStore.user.username ||
+        formData.value.email !== authStore.user.email ||
+        !!formData.value.newPassword
+      );
+    });
 
     const updateProfile = async () => {
       error.value = null;
@@ -68,12 +77,12 @@ export default {
         
         success.value = 'Profile updated successfully!';
         isEditing.value = false;
-        
+
         // Clear password fields
         formData.value.currentPassword = '';
         formData.value.newPassword = '';
         formData.value.confirmPassword = '';
-        
+
       } catch (err) {
         error.value = err.response?.data?.error || 'Failed to update profile';
       } finally {
@@ -108,6 +117,7 @@ export default {
 
     return {
       authStore,
+      hasChanges,
       isLoading,
       error,
       success,
@@ -177,7 +187,6 @@ export default {
                       ? 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100'
                       : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                   ]"
-                  required
                 />
               </div>
               <div>
@@ -194,7 +203,6 @@ export default {
                       ? 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100'
                       : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                   ]"
-                  required
                 />
               </div>
 
@@ -230,18 +238,6 @@ export default {
                   class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100"
                 />
               </div>
-              <div v-if="isEditing">
-                <div class="mb-4">
-                  <label class="flex items-center">
-                    <input
-                      v-model="formData.is_admin"
-                      type="checkbox"
-                      class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    >
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Admin User</span>
-                  </label>
-                </div>
-              </div>
             </div>
             <div
               v-if="isEditing"
@@ -258,7 +254,7 @@ export default {
               <button
                 type="submit"
                 class="btn btn-primary"
-                :disabled="isLoading"
+                :disabled="isLoading || !hasChanges"
               >
                 <span v-if="isLoading">Saving...</span>
                 <span v-else>Save Changes</span>

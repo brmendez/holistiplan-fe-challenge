@@ -120,10 +120,6 @@ def update_profile():
             return jsonify({'error': 'Email already exists'}), 400
         user.email = data['email']
 
-    if (data.get('is_admin') is not None) and (data['is_admin'] != user.is_admin):
-        user.is_admin = data['is_admin']
-
-    
     # Update password if provided
     if data.get('new_password'):
         user.set_password(data['new_password'])
@@ -238,7 +234,7 @@ def create_server():
     
     # Generate realistic random resource usage values to make new servers feel "live"
     random_cpu = round(random.uniform(0, 1), 2)  # 0-1 decimal (e.g. 0.5 = 50%)
-    random_memory = round(random.uniform(0, 100))  # 0-100 whole percent
+    random_memory = round(random.uniform(0, 1), 2)  # 0-1 decimal (e.g. 0.5 = 50%)
     random_disk = round(random.uniform(0, 1), 2)  # 0-1 decimal (e.g. 0.5 = 50%)
     # Uptime between 1 hour and 100 days (in seconds)
     random_uptime = random.randint(3600, 8640000)
@@ -346,7 +342,7 @@ def create_sample_data():
                 ip_address=f'192.168.{(i-1)//256}.{(i-1)%256 + 1}',
                 status=random.choice(statuses),
                 cpu_usage=round(random.uniform(0, 1), 2),  # 0-1 decimal
-                memory_usage=round(random.uniform(0, 100)),  # 0-100 whole percent
+                memory_usage=round(random.uniform(0, 1), 2),  # 0-1 decimal
                 disk_usage=round(random.uniform(0, 1), 2),  # 0-1 decimal
                 uptime=random.randint(3600, 8640000),  # 1 hour to 100 days in seconds
                 location=random.choice(locations),
